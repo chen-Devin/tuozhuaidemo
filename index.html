@@ -1,0 +1,342 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>测试的拖拽功能</title>
+    <style type="text/css">
+        body,
+        div {
+            margin: 0;
+            padding: 0;
+            font-size: 12px;
+        }
+        
+        ul,
+        li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+        
+        .clear {
+            clear: both;
+            width: 1px;
+            height: 0px;
+            line-height: 0px;
+            font-size: 1px;
+        }
+        
+        .bor2 {
+            padding: 20px 0 0 0;
+        }
+        
+        .box {
+            position: static;
+            float: left;
+            width: 200px;
+            height: 800px;
+            margin: 0 auto;
+            margin-top: 15px;
+        }
+        
+        .bor {
+            position: static;
+            width: 200px;
+            height: 30px;
+            margin: 0 0 5px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            background: #ececec;
+        }
+        
+        .borp {
+            position: absolute;
+            width: 200px;
+            height: 50px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #ececec;
+        }
+        
+        .bg {
+            float: left;
+            width: 800px;
+            height: 200px;
+            margin: 8px 5px 0 30px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        
+        .xs1 {
+            float: left;
+            width: 800px;
+            height: 200px;
+            margin: 8px 5px 0 30px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        
+        .xs2 {
+            float: left;
+            width: 800px;
+            height: 200px;
+            margin: 8px 5px 0 30px;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+        
+        .text2 {
+            width: 200px;
+        }
+        
+        .window {
+            width: 300px;
+            height: 200px;
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 0 auto;
+            background-color: rgb(243, 239, 239);
+            display: inline-block;
+            position: relative;
+        }
+        
+        .bgColor {
+            border: 1px dashed #f00;
+        }
+    </style>
+    <!-- <link rel="stylesheet" href="https://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.css"> -->
+    <script src="https://apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
+    <!-- <script src="https://apps.bdimg.com/libs/jquerymobile/1.4.5/jquery.mobile-1.4.5.min.js"></script> -->
+    <!-- <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script> -->
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var show = true;
+            $('.window').hide();
+            var move = false; // 移动的初始化
+            var $bg = $(".bg");
+            var initDiv, tarDiv, tarDivHalf = 0,
+                wHalf = 0; //拖拽对象 目标对象 
+            var initPos = {
+                    x: 0,
+                    y: 0
+                },
+                relPos = {
+                    x: 0,
+                    y: 0
+                },
+                temPos = {
+                    x: 0,
+                    y: 0
+                };
+            var dragPos = {
+                x1: 0,
+                x2: 0,
+                y1: 0,
+                y2: 0
+            }; // 拖拽对象的四个坐标
+            var tarDivPos = {
+                x1: 0,
+                y1: 0,
+                x2: 0,
+                y2: 0
+            }; //目标对象的四个坐标
+
+            //$(".bor").each(function() {  用each 会导致性能下降，所以IE会出现拖拽对象 随鼠标移动时 慢了半拍的现象
+            $(".bor").bind('mousedown', function(event) {
+                borSub = $(this).index();
+                initDiv = $(".bor").eq(borSub); //拖拽对象
+                // 鼠标 与 目标元素的相对坐标
+                relPos.x = event.pageX - $(this).offset().left;
+                relPos.y = event.pageY - $(this).offset().top;
+                move = true;
+            });
+            $(document).mousemove(function(event) {
+
+                if (!move) {
+                    return false;
+                }
+                // 下列代码是 if(move)的 程序
+                initDiv.removeClass("bor").addClass("borp");
+                // 目标元素随鼠标移动的坐标
+                dragPos.x1 = event.pageX - relPos.x;
+                dragPos.y1 = event.pageY - relPos.y;
+                dragPos.x2 = dragPos.x1 + initDiv.innerWidth();
+                dragPos.y2 = dragPos.y1 + initDiv.innerHeight();
+
+                initDiv.css({
+                    left: dragPos.x1 + 'px',
+                    top: dragPos.y1 + 'px'
+                });
+
+                $bg.each(function() {
+                    tarDiv = $(this);
+                    // 目标对象的坐标
+                    tarDivPos.x1 = tarDiv.offset().left;
+                    tarDivPos.x2 = tarDivPos.x1 + tarDiv.width();
+                    tarDivPos.y1 = tarDiv.offset().top;
+                    tarDivPos.y2 = tarDivPos.y1 + tarDiv.height();
+
+                    tarDivHalf = tarDiv.height() / 2; //临时变量，用于在if判断中使用
+                    wHalf = tarDiv.width() / 2;
+
+                    if (dragPos.x2 >= tarDivPos.x1 + wHalf && dragPos.x2 <= tarDivPos.x2 + wHalf && dragPos.y2 >= tarDivPos.y1 + tarDivHalf && dragPos.y2 <= tarDivPos.y2 + tarDivHalf) {
+                        if (tarDiv.children().length > 0) {
+                            return false;
+                        } // 解决重叠元素 移动到一个目标元素
+                        tarDiv.removeClass("bg").addClass("bg bgColor");
+                    } else {
+                        tarDiv.removeClass("bgColor");
+                    }
+                });
+
+            }).mouseup(function(event) {
+                initDiv.appendTo($(".bgColor")); // 用 apppendTo 方法 使拖动元素对象添加到指定的区域。
+                initDiv.removeClass("borp").addClass("bor").removeAttr("style"); //恢复拖拽对象初始的样式
+                move = false;
+                if (show) {
+                    $('.window').show();
+                }
+
+            });
+            //管理员初次保存
+            $('.save').click(function() {
+                    $('.window').hide();
+                    show = false;
+                    var inhtml = $('.bg')[0].innerHTML;
+                    var data = {
+                        "command": "saveTable",
+                        "platform": "web",
+                        "tableData": [inhtml]
+                    }
+                    var dataJson = JSON.stringify(data);
+                    console.log(dataJson);
+                    $.ajax({
+                        type: 'get',
+                        url: 'http://test.tzucpa.cn/service?command=saveTable&platform=web&data=' + dataJson,
+                        dataType: "json", //指定服务器返回的数据类型
+                        success: function(data) {
+                            console.log(data);
+                        }
+                    });
+                })
+                //用户初次显示
+            $('.show').click(function() {
+                    $('.window').hide();
+                    var data = {
+                        "command": "getTable",
+                        "platform": "web"
+                    }
+                    var dataJson = JSON.stringify(data);
+                    console.log(dataJson);
+                    $.ajax({
+                        type: 'get',
+                        url: 'http://test.tzucpa.cn/service?command=saveTable&platform=web&data=' + dataJson,
+                        dataType: "json", //指定服务器返回的数据类型
+                        success: function(data) {
+                            $(".xs1").html();
+                            $(".xs1").html(data.data.tableInfo[0]);
+                        }
+                    });
+
+                })
+                //用户填写后保存
+            $('.fillSave').click(function() {
+                    $('.window').hide();
+                    // $(".xs1").find('input').on('input propertychange',function(){
+                    //     var result = $(this).val();
+                    //     $(this).val(result);
+                    //     console.log(result);
+                    //     // $(".inputwrapper").find('.result').html(result);
+                    // });
+                    var inter = $(".xs1").find('input').val();
+                    $(".xs1").find('input').attr("value", inter);
+                    // var inhtml = $('.xs1')[0].innerHTML;
+                    // var inhtml = document.form[1].elements[0].value
+                    // document.form[1].elements[0].value=123;
+                    // console.log(inhtml);
+                    console.log($('.xs1')[0].innerHTML);
+                    var inhtml = $('.xs1')[0].innerHTML;
+
+
+                    var data = {
+                        "command": "saveTableInfo",
+                        "platform": "web",
+                        "tableInfoData": [inhtml]
+                    }
+                    var dataJson = JSON.stringify(data);
+                    console.log(dataJson);
+                    $.ajax({
+                        type: 'get',
+                        url: 'http://test.tzucpa.cn/service?command=saveTable&platform=web&data=' + dataJson,
+                        dataType: "json", //指定服务器返回的数据类型
+                        success: function(data) {
+                            console.log(data);
+                        }
+                    });
+                })
+                //用户填写后显示
+            $('.fillShow').click(function() {
+                    $('.window').hide();
+                    var data = {
+                        "command": "getTableInfo",
+                        "platform": "web"
+                    }
+                    var dataJson = JSON.stringify(data);
+                    console.log(dataJson);
+                    $.ajax({
+                        type: 'get',
+                        url: 'http://test.tzucpa.cn/service?command=saveTable&platform=web&data=' + dataJson,
+                        dataType: "json", //指定服务器返回的数据类型
+                        success: function(data) {
+                            // console.log(data.data.tableInfo[0]);
+                            $(".xs2").html();
+                            $(".xs2").html(data.data.tableInfo[0]);
+                        }
+                    });
+
+                })
+                //设置表单属性
+            $('.cancel').click(function() {
+                $('.window').hide();
+            })
+            $('.confirm').click(function() {
+                $('.modolTitle').html($(".title").val());
+                $('.modolInput').attr('placeholder', $(".placeholder").val());
+                $('.window').hide();
+            })
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="box">
+        <div class="bor">
+            <form action="" name="form"><span class="modolTitle">选项</span><input type="text" class="modolInput" placeholder="拖我啊"></form>
+        </div>
+        <button class="save">管理员初次保存</button><br><br>
+        <button class="show">用户初次显示</button><br><br>
+        <button class="fillSave">用户填写后保存</button><br><br>
+        <button class="fillShow">用户填写后显示</button>
+    </div>
+
+    <div class="box2">
+        <div class="bg" id="bg1"></div>
+
+    </div>
+    <div class="window" id="window">
+        <h4>设置</h4><br>
+        <div>提示内容: <input type="text" placeholder="placeholder" class="placeholder"></div><br>
+        <div>标签名：<input type="text" placeholder="title" class="title"></div><br>
+        <button class="confirm">确定</button>
+        <button class="cancel">取消</button>
+    </div>
+    <div class="xs1" id="">初次显示</div>
+    <div class="xs2" id="">填制后显示</div>
+    <div class="clear"></div>
+
+</body>
+
+</html>
